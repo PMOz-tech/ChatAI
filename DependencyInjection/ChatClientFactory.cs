@@ -1,13 +1,25 @@
-﻿using ChatAI.Models;
-using Microsoft.Extensions.AI;
 using Anthropic;
+using ChatAI.Interfaces;
+using ChatAI.Models;
+using ChatAI.Services;
+using Microsoft.Extensions.AI;
+using Microsoft.Extensions.Options;
 using OpenAI;
-namespace ChatAI.DependencyInjection
+
+namespace ChatAI.DependencyInjection;
+
+public static class ChatClientExtensions
 {
-    public static class ChatClientFactory
+    public static IServiceCollection AddAIChatServices(this IServiceCollection services)
     {
-        public static IChatClient Create(AISettings settings) =>
-            settings.Provider switch
+        services.AddOptions<AISettings>()
+            .BindConfiguration("AISettings")
+            .ValidateOnStart();
+
+        services.AddSingleton<IChatClient>(sp =>
+        {
+            var settings = sp.GetRequiredService<IOptions<AISettings>>().Value;
+            return settings.Provider switch
             {
                 "OpenAI" => new OpenAIClient(settings.OpenAI.ApiKey)
                                 .GetChatClient(settings.OpenAI.Model)
@@ -16,7 +28,13 @@ namespace ChatAI.DependencyInjection
                 "Anthropic" => new AnthropicClient { ApiKey = settings.Anthropic.ApiKey }
                                 .AsIChatClient(settings.Anthropic.Model),
 
-                _ => throw new InvalidOperationException($"Unknown provider: {settings.Provider}")
+                _ => throw new InvalidOperationException(
+                    $"Unknown AI provider: '{settings.Provider}'. Valid values: Anthropic, OpenAI")
             };
+        });
+
+        services.AddScoped<IChatService, AIChatService>();
+
+        return services;
     }
 }

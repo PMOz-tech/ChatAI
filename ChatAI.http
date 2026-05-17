@@ -1,5 +1,59 @@
-@ChatAI_HostAddress = http://localhost:5130
+@ChatAI_HostAddress = https://localhost:7130
 
+### Non-streaming chat
+POST {{ChatAI_HostAddress}}/api/chat
+Content-Type: application/json
+
+{
+  "message": "What is the capital of France?",
+  "history": null
+}
+
+###
+
+### Non-streaming chat — multi-turn with history
+POST {{ChatAI_HostAddress}}/api/chat
+Content-Type: application/json
+
+{
+  "message": "And what about Germany?",
+  "history": [
+    {
+      "role": "user",
+      "contents": [{ "kind": 1, "text": "What is the capital of France?" }]
+    },
+    {
+      "role": "assistant",
+      "contents": [{ "kind": 1, "text": "The capital of France is Paris." }]
+    }
+  ]
+}
+
+###
+
+### Streaming chat (SSE — use curl or EventSource, not the .http runner)
+# curl -kN -X POST https://localhost:7130/api/chat/stream \
+#   -H "Content-Type: application/json" \
+#   -H "Accept: text/event-stream" \
+#   -d '{"message":"Tell me a short story about a robot."}'
+POST {{ChatAI_HostAddress}}/api/chat/stream
+Content-Type: application/json
+Accept: text/event-stream
+
+{
+  "message": "Tell me a short story about a robot.",
+  "history": null
+}
+
+###
+
+### OpenAPI spec (dev only)
+GET {{ChatAI_HostAddress}}/openapi/v1.json
+Accept: application/json
+
+###
+
+### Weather forecast (sample endpoint)
 GET {{ChatAI_HostAddress}}/weatherforecast/
 Accept: application/json
 
