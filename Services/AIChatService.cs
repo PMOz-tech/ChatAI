@@ -53,7 +53,7 @@ public class AIChatService : IChatService
 
         return new ChatResponse
         {
-            Response = response.Text ?? string.Empty,
+            Response = response.Text,
             Model = modelId,
             TokensUsed = tokensUsed
         };
@@ -100,7 +100,16 @@ public class AIChatService : IChatService
             messages.Add(new ChatMessage(ChatRole.System, _settings.Anthropic.SystemPrompt));
 
         if (request.History is { Count: > 0 })
-            messages.AddRange(request.History);
+            foreach (var h in request.History)
+            {
+                var role = h.Role.ToLowerInvariant() switch
+                {
+                    "assistant" => ChatRole.Assistant,
+                    "system"    => ChatRole.System,
+                    _           => ChatRole.User
+                };
+                messages.Add(new ChatMessage(role, h.Content));
+            }
 
         messages.Add(new ChatMessage(ChatRole.User, request.Message));
         return messages;

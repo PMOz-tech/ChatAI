@@ -1,5 +1,3 @@
-using Microsoft.Extensions.AI;
-
 namespace ChatAI.Models;
 
 /// <summary>
@@ -14,7 +12,7 @@ public class ChatRequest
 
     /// <summary>
     /// Optional prior conversation turns for multi-turn chat.
-    /// Each item should have Role set to "user" or "assistant".
+    /// Each item requires <c>role</c> ("user" or "assistant") and <c>content</c>.
     /// </summary>
-    public List<ChatMessage>? History { get; set; }
+    public List<ChatHistoryMessage>? History { get; set; }
 }
