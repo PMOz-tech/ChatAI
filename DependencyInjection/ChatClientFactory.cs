@@ -19,7 +19,8 @@ public static class ChatClientExtensions
         services.AddSingleton<IChatClient>(sp =>
         {
             var settings = sp.GetRequiredService<IOptions<AISettings>>().Value;
-            return settings.Provider switch
+
+            var inner = settings.Provider switch
             {
                 "OpenAI" => new OpenAIClient(settings.OpenAI.ApiKey)
                                 .GetChatClient(settings.OpenAI.Model)
@@ -31,7 +32,15 @@ public static class ChatClientExtensions
                 _ => throw new InvalidOperationException(
                     $"Unknown AI provider: '{settings.Provider}'. Valid values: Anthropic, OpenAI")
             };
+
+            return new ChatClientBuilder(inner)
+                .UseFunctionInvocation()
+                .Build();
         });
+
+        services.AddSingleton<IDatabaseService, DatabaseService>();
+        services.AddSingleton<DatabaseSeeder>();
+        services.AddSingleton<DatabaseTools>();
 
         services.AddScoped<IChatService, AIChatService>();
 

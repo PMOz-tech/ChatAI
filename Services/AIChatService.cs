@@ -16,17 +16,20 @@ public class AIChatService : IChatService
     private readonly ResiliencePipelineProvider<string> _pipelineProvider;
     private readonly ILogger<AIChatService> _logger;
     private readonly AISettings _settings;
+    private readonly DatabaseTools _dbTools;
 
     public AIChatService(
         IChatClient client,
         ResiliencePipelineProvider<string> pipelineProvider,
         ILogger<AIChatService> logger,
-        IOptions<AISettings> settings)
+        IOptions<AISettings> settings,
+        DatabaseTools dbTools)
     {
         _client = client;
         _pipelineProvider = pipelineProvider;
         _logger = logger;
         _settings = settings.Value;
+        _dbTools = dbTools;
     }
 
     public async Task<ChatResponse> GetResponseAsync(ChatRequest request, CancellationToken ct = default)
@@ -119,6 +122,7 @@ public class AIChatService : IChatService
     {
         ModelId = _settings.Anthropic.Model,
         MaxOutputTokens = _settings.Anthropic.MaxTokens,
-        Temperature = _settings.Anthropic.Temperature
+        Temperature = _settings.Anthropic.Temperature,
+        Tools = [.._dbTools.All]
     };
 }

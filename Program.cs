@@ -1,5 +1,6 @@
 using ChatAI.DependencyInjection;
 using ChatAI.Models;
+using ChatAI.Services;
 using Microsoft.Extensions.Options;
 using Polly;
 using Polly.CircuitBreaker;
@@ -128,6 +129,9 @@ try
     });
 
     var app = builder.Build();
+
+    // ── Database ──────────────────────────────────────────────────────────────
+    await app.Services.GetRequiredService<DatabaseSeeder>().SeedAsync();
 
     // ── Middleware pipeline ───────────────────────────────────────────────────
     if (app.Environment.IsDevelopment())
