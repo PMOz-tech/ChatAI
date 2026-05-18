@@ -1,6 +1,8 @@
 ChatAI is an ASP.NET Core 10 Web API that exposes a chat AI endpoint. It abstracts over multiple AI providers
 (Anthropic Claude, OpenAI GPT) through a single interface, with full streaming support, structured logging, and automatic resilience built in.
 
+It also implements function calling using SQLite. To read more on function calling --> functioncalling.md
+
 ---
 
 ## Architecture
